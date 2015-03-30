@@ -35,7 +35,7 @@ void loop() {
 
 void refresh() {
   // prevent being called by interrupt while already running
-  int t_start = micros();
+  //int t_start = micros();
   Timer1.detachInterrupt(); 
   int count=0;
   int n;
@@ -45,50 +45,69 @@ void refresh() {
     n = USBSERIAL.readBytes(buf+count, BUFSIZE-count);
     count = count + n;
   }
-  
-  j = 4096 - (++i);
-  write_values(i, j, i, j, CS_pins[0], CS_pins[1]);
-  write_values(i, j, i, j, CS_pins[2], CS_pins[3]);
-  if(i > 4095) {
-    i = 0; 
-  } 
-  if (micros() - t_start < 50) {
-    USBSERIAL.println(micros() - t_start);
+
+  for (byte c=0; c<N_MCPS; c++) {
+    write_channel_A(buf+c*4, CS_pins[c]);
   }
+  for (byte c=0; c<N_MCPS; c++) {
+    write_channel_B(buf+2+c*4, CS_pins[c]);
+  }
+  
+//  if (micros() - t_start > 50) {
+//    USBSERIAL.println("Took too long: ");
+//    USBSERIAL.println(micros() - t_start);
+//  }
   Timer1.attachInterrupt(refresh);
 }
 
-void write_values(int valueA1, int valueA2, int valueB1, int valueB2, int pin1, int pin2) {
-  // CS needs to be HIGh at least 15 ns before the next transfer can occur. Instead of
-  // waiting, just start transferring to next chip
-  
-  // channel (0 = DACA, 1 = DACB) // Vref input buffer (0 = unbuffered, 1 = buffered) // gain (1 = 1x, 0 = 2x)  // Output power down power down (0 = output buffer disabled) //  12 bits of data        
-  
-  // chip 1, channel A
-  out = CFG_A | ( valueA1 ); 
-  digitalWriteFast(pin1, LOW);
-  spi4teensy3::send(out >> 8);
-  spi4teensy3::send(out & 0xFF);
-  digitalWriteFast(pin1, HIGH);
+// CS needs to be HIGH at least 15 ns before the next transfer can occur. Instead of
+// waiting, just start transferring to next chip
 
-  // chip 2, channel A
-  out = CFG_A | ( valueA2 ); 
-  digitalWriteFast(pin2, LOW);
-  spi4teensy3::send(out >> 8);
-  spi4teensy3::send(out & 0xFF);
-  digitalWriteFast(pin2, HIGH); 
-
-  // chip 1, channel B
-  out = CFG_B | ( valueB1 ); 
-  digitalWriteFast(pin1, LOW);
-  spi4teensy3::send(out >> 8);
-  spi4teensy3::send(out & 0xFF);
-  digitalWriteFast(pin1, HIGH);
-
-  // chip 2, channel B
-  out = CFG_B | ( valueB2 ); 
-  digitalWriteFast(pin2, LOW);
-  spi4teensy3::send(out >> 8);
-  spi4teensy3::send(out & 0xFF);
-  digitalWriteFast(pin2, HIGH);   
+// channel (0 = DACA, 1 = DACB) // Vref input buffer (0 = unbuffered, 1 = buffered) // gain (1 = 1x, 0 = 2x)  // Output power down power down (0 = output buffer disabled) //  12 bits of data
+void write_channel_A(char subbuf[], int pin) {
+  digitalWriteFast(pin, LOW);
+  char cfg = (1 << 7) | (1 << 6) | (1<< 5) | (1 << 4);
+  spi4teensy3::send(cfg | (subbuf[1] & 0xF));
+  spi4teensy3::send(subbuf[0]);
+  digitalWriteFast(pin, HIGH);
 }
+void write_channel_B(char subbuf[], int pin) {
+  digitalWriteFast(pin, LOW);
+  char cfg = (0 << 7) | (1 << 6) | (1<< 5) | (1 << 4);
+  spi4teensy3::send(cfg | (subbuf[1] & 0xF));
+  spi4teensy3::send(subbuf[0]);
+  digitalWriteFast(pin, HIGH);
+}
+//void write_values(char subbuf[], int pin1, int pin2) {
+
+//  
+//          
+//  
+//  // chip 1, channel A
+//  out = CFG_A | ( valueA1 ); 
+//  digitalWriteFast(pin1, LOW);
+//  spi4teensy3::send(out >> 8);
+//  spi4teensy3::send(out & 0xFF);
+//  digitalWriteFast(pin1, HIGH);
+//
+//  // chip 2, channel A
+//  out = CFG_A | ( valueA2 ); 
+//  digitalWriteFast(pin2, LOW);
+//  spi4teensy3::send(out >> 8);
+//  spi4teensy3::send(out & 0xFF);
+//  digitalWriteFast(pin2, HIGH); 
+//
+//  // chip 1, channel B
+//  out = CFG_B | ( valueB1 ); 
+//  digitalWriteFast(pin1, LOW);
+//  spi4teensy3::send(out >> 8);
+//  spi4teensy3::send(out & 0xFF);
+//  digitalWriteFast(pin1, HIGH);
+//
+//  // chip 2, channel B
+//  out = CFG_B | ( valueB2 ); 
+//  digitalWriteFast(pin2, LOW);
+//  spi4teensy3::send(out >> 8);
+//  spi4teensy3::send(out & 0xFF);
+//  digitalWriteFast(pin2, HIGH);   
+//}
