@@ -1,0 +1,154 @@
+port /dev/ttyACM0 opened for test with size 1
+16046B/s
+16062B/s
+16016B/s
+16067B/s
+16057B/s
+16067B/s
+16052B/s
+16057B/s
+16046B/s
+16036B/s
+port /dev/ttyACM0 opened for test with size 2
+31746B/s
+31747B/s
+31970B/s
+32010B/s
+31991B/s
+32010B/s
+31990B/s
+32010B/s
+31990B/s
+31990B/s
+port /dev/ttyACM0 opened for test with size 4
+63860B/s
+64020B/s
+64021B/s
+64020B/s
+63942B/s
+63857B/s
+64021B/s
+64021B/s
+64019B/s
+64023B/s
+port /dev/ttyACM0 opened for test with size 8
+127885B/s
+128201B/s
+128205B/s
+127887B/s
+128202B/s
+127550B/s
+127885B/s
+127878B/s
+128202B/s
+128205B/s
+port /dev/ttyACM0 opened for test with size 16
+256405B/s
+256414B/s
+256401B/s
+256410B/s
+256431B/s
+256393B/s
+256396B/s
+256422B/s
+255141B/s
+256414B/s
+port /dev/ttyACM0 opened for test with size 32
+510472B/s
+510388B/s
+515528B/s
+510435B/s
+510461B/s
+515512B/s
+510461B/s
+515512B/s
+510451B/s
+510472B/s
+port /dev/ttyACM0 opened for test with size 64
+595866B/s
+595817B/s
+595973B/s
+602785B/s
+595852B/s
+595852B/s
+595831B/s
+595895B/s
+602864B/s
+595831B/s
+port /dev/ttyACM0 opened for test with size 128
+595831B/s
+595831B/s
+602952B/s
+595810B/s
+595845B/s
+595852B/s
+602908B/s
+595831B/s
+595852B/s
+595817B/s
+port /dev/ttyACM0 opened for test with size 256
+597269B/s
+597426B/s
+597340B/s
+597333B/s
+597362B/s
+597340B/s
+597340B/s
+597326B/s
+597340B/s
+597340B/s
+port /dev/ttyACM0 opened for test with size 512
+597205B/s
+597376B/s
+597305B/s
+597340B/s
+597362B/s
+597348B/s
+597326B/s
+597319B/s
+597376B/s
+597319B/s
+port /dev/ttyACM0 opened for test with size 1024
+597355B/s
+597376B/s
+597340B/s
+597312B/s
+597369B/s
+597326B/s
+597333B/s
+597348B/s
+597340B/s
+597369B/s
+port /dev/ttyACM0 opened for test with size 2048
+602367B/s
+595363B/s
+595349B/s
+595370B/s
+602360B/s
+595349B/s
+595321B/s
+602395B/s
+595356B/s
+595370B/s
+port /dev/ttyACM0 opened for test with size 4096
+598252B/s
+598299B/s
+598326B/s
+598285B/s
+591697B/s
+598306B/s
+598285B/s
+598252B/s
+598299B/s
+598319B/s
+port /dev/ttyACM0 opened for test with size 8192
+597352B/s
+597333B/s
+597340B/s
+597358B/s
+597308B/s
+597364B/s
+597358B/s
+597321B/s
+597340B/s
+597352B/s
