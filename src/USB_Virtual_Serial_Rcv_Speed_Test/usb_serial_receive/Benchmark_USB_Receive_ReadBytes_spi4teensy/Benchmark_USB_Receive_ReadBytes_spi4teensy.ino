@@ -1,17 +1,16 @@
+#define NOP __asm__ __volatile__ ("nop\n\t")
 #define USBSERIAL Serial      // Arduino Leonardo, Teensy, Fubarino
 //#define USBSERIAL SerialUSB   // Arduino Due, Maple
+
 #define BUFSIZE 16
+char buf[BUFSIZE]; // Data buffer
 
 #include <spi4teensy3.h>
 #define N_MCPS 4
-#define CFG_A (0 << 15) | (1 << 14) | (1<< 13) | (1 << 12) // config bits channel A
-#define CFG_B (1 << 15) | (1 << 14) | (1<< 13) | (1 << 12) // config bits channel B
-
 const int CS_pins[N_MCPS] = {10, 9, 20, 21};
-int i = 0;
-int j = 0;
-uint16_t out;
-char buf[BUFSIZE];
+// channel (0 = DACA, 1 = DACB) // Vref input buffer (0 = unbuffered, 1 = buffered) // gain (1 = 1x, 0 = 2x)  // Output power down power down (0 = output buffer disabled) //  12 bits of data
+#define CFG_A (0 << 7) | (1 << 6) | (1<< 5) | (1 << 4) // config bits channel A
+#define CFG_B (1 << 7) | (1 << 6) | (1<< 5) | (1 << 4) // config bits channel B
 
 #include <TimerOne.h>
 
@@ -26,69 +25,51 @@ void setup() {
 
   spi4teensy3::init();
   
-  Timer1.initialize(50);
+  Timer1.initialize(50); // 50 microseconds =~ 20KHz
   Timer1.attachInterrupt(refresh);
 }
 
 void loop() {
+  // nothing happening here... yet!
 }
 
 void refresh() {
   // prevent being called by interrupt while already running
-  int t_start = micros();
   Timer1.detachInterrupt(); 
+  //int t_start = micros();
+
+  // refill buffer, take as long as needed
   int count=0;
   int n;
-  
-  // refill buffer, take as long as needed
   while (count < BUFSIZE) {
     n = USBSERIAL.readBytes(buf+count, BUFSIZE-count);
     count = count + n;
   }
-  
-  j = 4096 - (++i);
-  write_values(i, j, i, j, CS_pins[0], CS_pins[1]);
-  write_values(i, j, i, j, CS_pins[2], CS_pins[3]);
-  if(i > 4095) {
-    i = 0; 
-  } 
-  if (micros() - t_start < 50) {
-    USBSERIAL.println(micros() - t_start);
+
+  for (byte c=0; c<N_MCPS; c++) {
+    write_dac(buf+c*4, CS_pins[c]);
   }
+  
+//  if (micros() - t_start > 50) {
+//    USBSERIAL.println("Took too long: ");
+//    USBSERIAL.println(micros() - t_start);
+//  }
   Timer1.attachInterrupt(refresh);
 }
 
-void write_values(int valueA1, int valueA2, int valueB1, int valueB2, int pin1, int pin2) {
-  // CS needs to be HIGh at least 15 ns before the next transfer can occur. Instead of
-  // waiting, just start transferring to next chip
+// CS needs to be HIGH at least 15 ns before the next transfer can occur
+void write_dac(char subbuf[], int pin) {
+  digitalWriteFast(pin, LOW);
+  spi4teensy3::send(CFG_A | (subbuf[1] & 0xF));  // TODO: the 0xF shouldn't be needed!
+  spi4teensy3::send(subbuf[0]);
+  digitalWriteFast(pin, HIGH);
   
-  // channel (0 = DACA, 1 = DACB) // Vref input buffer (0 = unbuffered, 1 = buffered) // gain (1 = 1x, 0 = 2x)  // Output power down power down (0 = output buffer disabled) //  12 bits of data        
+  NOP; // delay by ~20 ns (on 48MHz Teensy);
+  NOP; // one seems enough, but better be safe + allow overclocking
   
-  // chip 1, channel A
-  out = CFG_A | ( valueA1 ); 
-  digitalWriteFast(pin1, LOW);
-  spi4teensy3::send(out >> 8);
-  spi4teensy3::send(out & 0xFF);
-  digitalWriteFast(pin1, HIGH);
-
-  // chip 2, channel A
-  out = CFG_A | ( valueA2 ); 
-  digitalWriteFast(pin2, LOW);
-  spi4teensy3::send(out >> 8);
-  spi4teensy3::send(out & 0xFF);
-  digitalWriteFast(pin2, HIGH); 
-
-  // chip 1, channel B
-  out = CFG_B | ( valueB1 ); 
-  digitalWriteFast(pin1, LOW);
-  spi4teensy3::send(out >> 8);
-  spi4teensy3::send(out & 0xFF);
-  digitalWriteFast(pin1, HIGH);
-
-  // chip 2, channel B
-  out = CFG_B | ( valueB2 ); 
-  digitalWriteFast(pin2, LOW);
-  spi4teensy3::send(out >> 8);
-  spi4teensy3::send(out & 0xFF);
-  digitalWriteFast(pin2, HIGH);   
+  digitalWriteFast(pin, LOW);
+  spi4teensy3::send(CFG_B | (subbuf[3] & 0xF));  // TODO: the 0xF shouldn't be needed!
+  spi4teensy3::send(subbuf[2]);
+  digitalWriteFast(pin, HIGH);  
 }
+
