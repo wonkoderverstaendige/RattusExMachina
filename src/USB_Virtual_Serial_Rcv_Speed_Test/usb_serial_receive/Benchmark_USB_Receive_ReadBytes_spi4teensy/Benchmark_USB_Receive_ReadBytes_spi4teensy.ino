@@ -3,8 +3,9 @@
 //#define USBSERIAL SerialUSB   // Arduino Due, Maple
 
 #include <spi4teensy3.h>
-#define N_MCPS 8
-const int CS_pins[N_MCPS] = {10, 9, 20, 21, 10, 9, 20, 21};
+// number of MCP4922s in use. Number of channels = 2*N_MCPS
+#define N_MCPS 4
+const int CS_pins[N_MCPS] = {10, 9, 20, 21, 10, 9, 20, 21}; // for easy switching to pretend 16 channels
 // channel (0 = DACA, 1 = DACB) // Vref input buffer (0 = unbuffered, 1 = buffered) // gain (1 = 1x, 0 = 2x)  // Output power down power down (0 = output buffer disabled) //  12 bits of data
 #define CFG_A (0 << 7) | (1 << 6) | (1<< 5) | (1 << 4) // config bits channel A
 #define CFG_B (1 << 7) | (1 << 6) | (1<< 5) | (1 << 4) // config bits channel B
