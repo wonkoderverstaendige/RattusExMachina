@@ -51,7 +51,7 @@ void close_port(PORTTYPE port);
 void delay(double sec);
 void die(const char *format, ...) __attribute__ ((format (printf, 1, 2)));
 
-char buffer[100000];
+char buffer[10000000];
 
 int main(int argc, char **argv)
 {
